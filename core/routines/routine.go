@@ -14,11 +14,12 @@ type routine struct {
 	SendQueue chan *Message//消息发送队列
 	RecvQueue chan *Message//消息接收队列
 	CloseChan chan bool			//
+	PoolChan  chan int32
 }
 
 
 func (r *routine) run(){
-	fmt.Println("run routine [%v]",r.Rid)
+	fmt.Println("run routine ",r.Rid)
 	go r.work()
 }
 func (r *routine) handle() error{
@@ -26,22 +27,22 @@ func (r *routine) handle() error{
 		select {
 		case _,ok := <- r.RecvQueue:
 			if ok{
-				fmt.Print("recv...")
+				fmt.Println("recv...")
 			}
 		case _,ok := <- r.SendQueue:
 			if ok{
-				fmt.Print("send...")
+				fmt.Println("send...")
 			}
 		case cls,ok := <- r.CloseChan:
 			if ok && cls{
-				fmt.Print("close...")
+				fmt.Println("close...")
 				return nil
 			}
 		}
 	}
 }
 func (r *routine) work(){
-	defer
+	defer r.close()
 	for retryCnt := 0;retryCnt<MAX_RETRY_NUM;{
 		err := r.handle()
 		if nil == err{
@@ -50,4 +51,12 @@ func (r *routine) work(){
 		misc.Errorf("routine err rid [%v] err[%v] retrycnt [%v]",r.Rid, err.Error(), retryCnt)
 		retryCnt++
 	}
+}
+
+func (r *routine) close(){
+	close(r.SendQueue)
+	close(r.RecvQueue)
+	close(r.CloseChan)
+	r.PoolChan <- r.Rid
+	fmt.Println("close routine ",r.Rid)
 }

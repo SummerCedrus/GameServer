@@ -1,23 +1,39 @@
 package main
 
 import (
+	."GameServer/stage"
 	"fmt"
-	"github.com/SummerCedrus/ServerKit/hotplugin"
 	"github.com/SummerCedrus/ServerKit/misc"
-	."github.com/SummerCedrus/ServerKit/netkit"
-
+	. "github.com/SummerCedrus/ServerKit/netkit"
+	"time"
 )
 
 func main(){
 	misc.InitLog("run", "server")
 	//hotplugin.Run()
-	mgr, err := NewServer("127.0.0.1:8080")
+	_, err := NewServer("127.0.0.1:8080")
 
 	if nil != err{
 		fmt.Errorf("Create New Server Error [%s]", err.Error())
 	}
-	hotplugin.Call("testplugin","Hello")
-	mainWork(mgr)
+	//hotplugin.Call("testplugin","Hello")
+	//mainWork(mgr)
+	InitStage()
+	for user_id:= int32(1000);user_id<1005;user_id++{
+		r := UserPoolMgr.NewRoutine()
+		UserMap[user_id] = r.Rid
+	}
+
+	for user_id:= int32(1000);user_id<1005;user_id++{
+		rid := UserMap[user_id]
+		fmt.Println("rid ",rid)
+		r := UserPoolMgr.GetRoutine(rid)
+		r.RecvQueue <- new(Message)
+		time.Sleep(2*time.Second)
+		r.CloseChan <- true
+		time.Sleep(2*time.Second)
+	}
+	UserPoolMgr.CloseChan <- true
 }
 
 func msgHandle(mgr *ConnectMgr) (err interface{}){
