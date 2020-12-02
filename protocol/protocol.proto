@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package protocol;
+
+message ClientInfo{
+    int32  UID   =   1;
+    string IP    =   2;
+};
+
+message GsConnectInfo{
+    int32 GsId = 1;
+}
+
+message NullMsg{
+}

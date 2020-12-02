@@ -1,0 +1,6 @@
+//cmd
+
+
+1#GS_CONNECT_GATE_REQ#GsConnectInfo#gs连接gate
+2#GS_CONNECT_GATE_ACK#NullMsg#gs连接gate
+//3#LOGIN_ACK#UserInfo#登录响应
