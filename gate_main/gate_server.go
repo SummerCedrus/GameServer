@@ -2,6 +2,7 @@ package main
 
 import (
 	"GameServer/gate"
+	"GameServer/protocol"
 	"fmt"
 	"github.com/SummerCedrus/ServerKit/misc"
 	."github.com/SummerCedrus/ServerKit/netkit"
@@ -10,7 +11,7 @@ import (
 func main(){
 	misc.InitLog("run", "gate")
 	//hotplugin.Run()
-	connect, err := NewServer("127.0.0.1:8080")
+	connect, err := NewServer("127.0.0.1:8080", protocol.ReflectMessage)
 
 	if nil != err{
 		fmt.Errorf("Create New Server Error [%s]", err.Error())
